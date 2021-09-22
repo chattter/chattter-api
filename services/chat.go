@@ -40,10 +40,10 @@ func (s *ChatService) DeleteMessage(id uint64, accountID uint64) error {
 		Error
 }
 
-func (s *ChatService) EditMessage(id uint64, message string) error {
+func (s *ChatService) EditMessage(id uint64, accountID uint64, message string) error {
 	return s.DB.
 		Where("id = ?", id).
-		Where("message = ?", message).
+		Where("account_id = ?", accountID).
 		Update(
 			"message",
 			message,
