@@ -2,6 +2,8 @@ package services
 
 import (
 	"database/sql"
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/chattter/chattter-api/models"
@@ -20,6 +22,9 @@ func (s *ChatService) SendMessage(text string, channelID uint64, senderID uint64
 		CreatedDate: time.Now(),
 	}
 	if err := s.DB.Create(&message).Error; err != nil {
+		return nil, err
+	}
+	if err := validateMessage(text); err != nil {
 		return nil, err
 	}
 	return &message, nil
@@ -41,6 +46,9 @@ func (s *ChatService) DeleteMessage(id uint64, accountID uint64) error {
 }
 
 func (s *ChatService) EditMessage(id uint64, accountID uint64, message string) error {
+	if err := validateMessage(message); err != nil {
+		return err
+	}
 	return s.DB.
 		Where("id = ?", id).
 		Where("account_id = ?", accountID).
@@ -49,4 +57,12 @@ func (s *ChatService) EditMessage(id uint64, accountID uint64, message string) e
 			message,
 		).
 		Error
+}
+
+func validateMessage(message string) error {
+	message = strings.TrimSpace(message)
+	if len(message) == 0 {
+		return errors.New("message is too short")
+	}
+	return nil
 }
