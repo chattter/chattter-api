@@ -59,6 +59,19 @@ func (s *ChatService) EditMessage(id uint64, accountID uint64, message string) e
 		Error
 }
 
+func (s *ChatService) ListMessage(channelID uint64) ([]*models.Message, error) {
+	var messages []*models.Message
+	err := s.DB.
+		Where("channel_id = ?", channelID).
+		Where("deleted_date IS NULL").
+		Find(&messages).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
+}
+
 func validateMessage(message string) error {
 	message = strings.TrimSpace(message)
 	if len(message) == 0 {
